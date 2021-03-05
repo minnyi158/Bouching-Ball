@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <style>
+            body {
+                margin: 0px;
+                padding: 0px;
+            }
+            
+            #myCanvas {
+                border: 15px solid green;
+            }
+        </style>
+        <script>
+            window.requestAnimFrame = (function(callback){
+                return window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                window.msRequestAnimationFrame ||
+                function(callback){
+                    window.setTimeout(callback, 1000 / 60);
+                };
+            })();
+            
+            function initBalls(){
+                balls = [];
+                
+                var blue = "#3A5BCD";
+                var red = "#EF2B36";
+                var yellow = "#FFC636";
+                var green = "#02A817";
+				var skyblue="skyblue";
+                
+                // M
+                balls.push(new Ball(29.0, 223.5, 0, 0, skyblue));
+                balls.push(new Ball(29.0, 194.5, 0, 0, skyblue));
+                balls.push(new Ball(29.0, 165.5, 0, 0, skyblue));
+                balls.push(new Ball(28.0, 135.5, 0, 0, skyblue));
+                balls.push(new Ball(29.0, 104.5, 0, 0, skyblue));
+                balls.push(new Ball(54.0, 123.5, 0, 0, skyblue));
+                balls.push(new Ball(72, 147.5, 0, 0, skyblue));
+                balls.push(new Ball(88.0, 174.5, 0, 0, skyblue));
+                balls.push(new Ball(105.0, 149.5, 0, 0, skyblue));
+                balls.push(new Ball(123.0, 123.5, 0, 0, skyblue));
+                balls.push(new Ball(148.0, 103.5, 0, 0, skyblue));
+                balls.push(new Ball(148.0, 132.5, 0, 0, skyblue));
+                balls.push(new Ball(148.0, 161.5, 0, 0, skyblue));
+                balls.push(new Ball(148.0, 191.5, 0, 0, skyblue));
+                balls.push(new Ball(148.0, 220.5, 0, 0, skyblue));
+                
+                // W
+                balls.push(new Ball(196.1, 103.5, 0, 0, skyblue));
+                balls.push(new Ball(196.5, 132.5, 0, 0, skyblue));
+                balls.push(new Ball(197.0, 162.5, 0, 0, skyblue));
+                balls.push(new Ball(197.5, 191.5, 0, 0, skyblue));
+                balls.push(new Ball(198.0, 220.5, 0, 0, skyblue));
+                balls.push(new Ball(222.7, 200.1, 0, 0, skyblue));
+                balls.push(new Ball(240.2, 173.8, 0, 0, skyblue));
+                balls.push(new Ball(256.8, 148.5, 0, 0, skyblue));
+                balls.push(new Ball(273.3, 175.2, 0, 0, skyblue));
+                balls.push(new Ball(291.7, 198.9, 0, 0, skyblue));
+                balls.push(new Ball(317.0, 217.5, 0, 0, skyblue));
+				balls.push(new Ball(317.5, 186.5, 0, 0, skyblue));
+                balls.push(new Ball(316.0, 156.5, 0, 0, skyblue));
+                balls.push(new Ball(315.5, 127.5, 0, 0, skyblue));
+                balls.push(new Ball(315.0, 98.5, 0, 0, skyblue));
+                
+                // T
+                balls.push(new Ball(361.0, 90.5, 0, 0, skyblue));
+                balls.push(new Ball(389.5, 90.5, 0, 0, skyblue));
+                balls.push(new Ball(418.0, 90.5, 0, 0, skyblue));
+                balls.push(new Ball(446.5, 90.5, 0, 0, skyblue));
+                balls.push(new Ball(475.0, 90.5, 0, 0, skyblue));
+                balls.push(new Ball(418.7, 119.9, 0, 0, skyblue));
+                balls.push(new Ball(418.3, 149.2, 0, 0, skyblue));
+                balls.push(new Ball(418.8, 178.5, 0, 0, skyblue));
+                balls.push(new Ball(419.2, 207.8, 0, 0, skyblue));
+                balls.push(new Ball(419.7, 237.1, 0, 0, skyblue));
+               
+                
+                // C
+                balls.push(new Ball(615.6, 248.4, 0, 0, skyblue));
+                balls.push(new Ball(583.6, 248.4, 0, 0, skyblue));
+                balls.push(new Ball(550.6, 246.4, 0, 0, skyblue));
+                balls.push(new Ball(523.6, 231.4, 0, 0, skyblue));
+                balls.push(new Ball(511.6, 204.4, 0, 0, skyblue));
+                balls.push(new Ball(506.6, 175.4, 0, 0, skyblue));
+                balls.push(new Ball(506.6, 146.4, 0, 0, skyblue));
+                balls.push(new Ball(515.6, 118.4, 0, 0, skyblue));
+                balls.push(new Ball(538.6, 96.4, 0, 0, skyblue));
+                balls.push(new Ball(571.6, 88.4, 0, 0, skyblue));
+                balls.push(new Ball(603.6, 87.4, 0, 0, skyblue));
+                
+                
+                return balls;
+            }
+            
+            function getMousePos(canvas, evt){
+                // get canvas position
+                var obj = canvas;
+                var top = 0;
+                var left = 0;
+                while (obj.tagName != 'BODY') {
+                    top += obj.offsetTop;
+                    left += obj.offsetLeft;
+                    obj = obj.offsetParent;
+                }
+                
+                // return relative mouse position
+                var mouseX = evt.clientX - left + window.pageXOffset;
+                var mouseY = evt.clientY - top + window.pageYOffset;
+                return {
+                    x: mouseX,
+                    y: mouseY
+                };
+            }
+            
+            function updateBalls(canvas, balls, timeDiff, mousePos){
+                var context = canvas.getContext("2d");
+                var collisionDamper = 0.3;
+                var floorFriction = 0.0005 * timeDiff;
+                var mouseForceMultiplier = 1 * timeDiff;
+                var restoreForce = 0.002 * timeDiff;
+                
+                for (var n = 0; n < balls.length; n++) {
+                    var ball = balls[n];
+                    // set ball position based on velocity
+                    ball.y += ball.vy;
+                    ball.x += ball.vx;
+                    
+                    // restore forces
+                    if (ball.x > ball.origX) {
+                        ball.vx -= restoreForce;
+                    }
+                    else {
+                        ball.vx += restoreForce;
+                    }
+                    if (ball.y > ball.origY) {
+                        ball.vy -= restoreForce;
+                    }
+                    else {
+                        ball.vy += restoreForce;
+                    }
+                    
+                    // mouse forces
+                    var mouseX = mousePos.x;
+                    var mouseY = mousePos.y;
+                    
+                    var distX = ball.x - mouseX;
+                    var distY = ball.y - mouseY;
+                    
+                    var radius = Math.sqrt(Math.pow(distX, 2) +
+                    Math.pow(distY, 2));
+                    
+                    var totalDist = Math.abs(distX) + Math.abs(distY);
+                    
+                    var forceX = (Math.abs(distX) / totalDist) *
+                    (1 / radius) *
+                    mouseForceMultiplier;
+                    var forceY = (Math.abs(distY) / totalDist) *
+                    (1 / radius) *
+                    mouseForceMultiplier;
+                    
+                    if (distX > 0) { // mouse is left of ball
+                        ball.vx += forceX;
+                    }
+                    else {
+                        ball.vx -= forceX;
+                    }
+                    if (distY > 0) { // mouse is on top of ball
+                        ball.vy += forceY;
+                    }
+                    else {
+                        ball.vy -= forceY;
+                    }
+                    
+                    // floor friction
+                    if (ball.vx > 0) {
+                        ball.vx -= floorFriction;
+                    }
+                    else if (ball.vx < 0) {
+                        ball.vx += floorFriction;
+                    }
+                    if (ball.vy > 0) {
+                        ball.vy -= floorFriction;
+                    }
+                    else if (ball.vy < 0) {
+                        ball.vy += floorFriction;
+                    }
+                    
+                    // floor condition
+                    if (ball.y > (canvas.height - ball.radius)) {
+                        ball.y = canvas.height - ball.radius - 2;
+                        ball.vy *= -1;
+                        ball.vy *= (1 - collisionDamper);
+                    }
+                    
+                    // ceiling condition
+                    if (ball.y < (ball.radius)) {
+                        ball.y = ball.radius + 2;
+                        ball.vy *= -1;
+                        ball.vy *= (1 - collisionDamper);
+                    }
+                    
+                    // right wall condition
+                    if (ball.x > (canvas.width - ball.radius)) {
+                        ball.x = canvas.width - ball.radius - 2;
+                        ball.vx *= -1;
+                        ball.vx *= (1 - collisionDamper);
+                    }
+                    
+                    // left wall condition
+                    if (ball.x < (ball.radius)) {
+                        ball.x = ball.radius + 2;
+                        ball.vx *= -1;
+                        ball.vx *= (1 - collisionDamper);
+                    }
+                }
+            }
+            
+            function Ball(x, y, vx, vy, color){
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.color = color;
+                this.origX = x;
+                this.origY = y;
+                this.radius = 10;
+            }
+            
+            function animate(canvas, balls, lastTime, mousePos){
+                var context = canvas.getContext("2d");
+                
+                // update
+                var date = new Date();
+                var time = date.getTime();
+                var timeDiff = time - lastTime;
+                updateBalls(canvas, balls, timeDiff, mousePos);
+                lastTime = time;
+                
+                // clear
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // render
+                for (var n = 0; n < balls.length; n++) {
+                    var ball = balls[n];
+                    context.beginPath();
+                    context.arc(ball.x, ball.y, ball.radius, 0, 2 * Math.PI, false);
+                    context.fillStyle = ball.color;
+                    context.fill();
+                }
+                
+                // request new frame
+                requestAnimFrame(function(){
+                    animate(canvas, balls, lastTime, mousePos);
+                });
+            }
+            
+            window.onload = function(){
+                var canvas = document.getElementById("myCanvas");
+                var balls = initBalls();
+                var date = new Date();
+                var time = date.getTime();
+                /*
+                 * set mouse position really far away
+                 * so the mouse forces are nearly obsolete
+                 */
+                var mousePos = {
+                    x: 9999,
+                    y: 9999
+                };
+                
+                canvas.addEventListener("mousemove", function(evt){
+                    var pos = getMousePos(canvas, evt);
+                    mousePos.x = pos.x;
+                    mousePos.y = pos.y;
+                });
+                
+                canvas.addEventListener("mouseout", function(evt){
+                    mousePos.x = 9999;
+                    mousePos.y = 9999;
+                });
+                
+                animate(canvas, balls, time, mousePos);
+            };
+        </script>
+    </head>
+    <body onmousedown="return false;" bgcolor="black">
+	</br></br>
+	<h1 align="center"><font color="orange">MWTC (Myanmar Web Technology Corporation) </font></h1>
+	<div style="width:700; height=300;" align="center">
+        <canvas id="myCanvas" width="625" height="300">
+        </canvas>
+		</div>
+    
+
+</body></html>
